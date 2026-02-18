@@ -5,8 +5,7 @@ import Image from 'next/image'
 import { SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs'
 import { ModeToggle } from '@/components/ui/mode-toggle'
 import { Button } from '@/components/ui/button'
-import { UserRole } from '@prisma/client'
-const navbar = ({userRole}) => {
+const navbar = ({isAdmin}) => {
   return (
     <nav className='fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-5xl px-4'>
 
@@ -25,7 +24,7 @@ const navbar = ({userRole}) => {
     <div className='flex items-center gap-4'>
       <ModeToggle/>
       <SignedIn>
-        {userRole && userRole === UserRole.ADMIN && (
+        {isAdmin && (
           <Link href={'/create-problem'}>
             <Button variant={'outline'}>Create Problem</Button>
           </Link>
