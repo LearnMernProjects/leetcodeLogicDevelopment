@@ -79,7 +79,7 @@ export async function POST(request) {
                 testCases,
                 examples,
                 codeSnippets,
-                refrenceSolutions: referenceSolutions,
+                referenceSolutions: referenceSolutions,
                 userId: dbUser.id,
             },
         });
