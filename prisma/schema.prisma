@@ -25,21 +25,23 @@ model User{
   problems Problem[]
   solvedProblems ProblemSolved[]
   submissions Submission[]
+  playlists Playlist[]
 }
-enum difficulty{
+enum Difficulty {
   EASY
   MEDIUM
-  HARD 
+  HARD
 }
- enum UserRole {
+
+enum UserRole {
   ADMIN
   USER
  }
-model Problem{
+model Problem {
   id String @id @default(uuid())
-  title String 
+  title String
   description String
-  difficulty difficulty
+  difficulty Difficulty
   tags String[]
   userId Int
   examples Json
@@ -48,12 +50,13 @@ model Problem{
   constraints String
   testCases Json
   codeSnippets Json
-  refrenceSolutions Json
+  referenceSolutions Json
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   solvedBy ProblemSolved[]
+  problemsPlaylists ProblemInPlaylist[]
   submissions Submission[]
   @@index([difficulty])
 }
@@ -104,4 +107,25 @@ model TestCaseResult{
   time String?
   
   @@index([status])
+}
+model Playlist {
+  id String @id @default(uuid())
+  name String
+  description String?
+  userId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  problems ProblemInPlaylist[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([name, userId])
+}
+
+model ProblemInPlaylist {
+  id String @id @default(uuid())
+  playlistId String
+  problemId String
+  createdAt DateTime @default(now())
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  @@unique([playlistId, problemId])
 }
