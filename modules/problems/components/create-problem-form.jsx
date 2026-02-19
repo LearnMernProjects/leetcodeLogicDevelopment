@@ -548,7 +548,13 @@ const CreateProblemForm = () => {
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify(values)
         })
-        toast.success(response.message || "Problem created successfully")
+        const data = await response.json();
+        
+        if(!response.ok) {
+            throw new Error(data.error || "Failed to create problem");
+        }
+        
+        toast.success(data.message || "Problem created successfully")
         router.push("/problems")
     } catch (error) {
           console.error("Error creating problem:", error);

@@ -23,9 +23,11 @@ model User{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   problems Problem[]
+  solvedProblems ProblemSolved[]
+  submissions Submission[]
 }
 enum difficulty{
-  easily
+  EASY
   MEDIUM
   HARD 
 }
@@ -33,7 +35,7 @@ enum difficulty{
   ADMIN
   USER
  }
- model Problem{
+model Problem{
   id String @id @default(uuid())
   title String 
   description String
@@ -49,7 +51,57 @@ enum difficulty{
   refrenceSolutions Json
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  solvedBy ProblemSolved[]
+  submissions Submission[]
   @@index([difficulty])
+}
+
+model ProblemSolved{
+  id String @id @default(uuid())
+  userId Int
+  problemId String
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, problemId])
+}
+
+model Submission{
+  id String @id @default(uuid())
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId String
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  sourceCode String
+  language String
+  stdin String
+  stdout String?
+  stderr String?
+  compileOutput String?
+  status String @default("Pending")
+  memory String?
+  time String?
+  testCases TestCaseResult[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TestCaseResult{
+  id String @id @default(uuid())
+  submissionId String
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  testCase Int
+  passed Boolean
+  stdout String?
+  expected String?
+  stderr String?
+  compileOutput String?
+  status String?
+  memory String?
+  time String?
+  
+  @@index([status])
 }
