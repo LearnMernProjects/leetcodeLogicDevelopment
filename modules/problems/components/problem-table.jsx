@@ -33,14 +33,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import CreatePlaylistModal from "./create-playlist";
+import AddToPlaylistModal from "./add-to-playlist";
 
 const ProblemsTable = ({ problems, user }) => {
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState("ALL");
   const [selectedTag, setSelectedTag] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Extract all unique tags from problems
+const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+const[isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false);
+const [selectedProblem, setSelectedProblem] = useState(null);
+// Extract all unique tags from problems
   const allTags = useMemo(() => {
     if (!Array.isArray(problems)) return [];
     const tagsSet = new Set();
@@ -81,6 +85,45 @@ const ProblemsTable = ({ problems, user }) => {
       toast.success(result.message);
     } else {
       toast.error(result.error);
+    }
+  };
+  const handleCreatePlaylist = async (name) => {
+    try {
+      const response = await fetch("/api/playlists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success(data.message);
+        setIsCreateModalOpen(false);
+      } else {
+        toast.error(data.error);
+      }
+    } catch (error) {
+      console.error("Error creating playlist:", error);
+      toast.error("Failed to create playlist");
+    }
+  };
+
+  const handleAddToPlaylist = async (problemId, playlistId) => {
+    try {
+      const response = await fetch("/api/playlists/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problemId, playlistId }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success(data.message);
+        setIsAddToPlaylistModalOpen(false);
+      } else {
+        toast.error(data.error);
+      }
+    } catch (error) {
+      console.error("Error adding problem to playlist:", error);
+      toast.error("Failed to add problem to playlist");
     }
   };
 
@@ -305,6 +348,13 @@ const ProblemsTable = ({ problems, user }) => {
           </div>
         </div>
       )}
+      <CreatePlaylistModal onSubmit={handleCreatePlaylist} isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      <AddToPlaylistModal 
+        isOpen={isAddToPlaylistModalOpen} 
+        onClose={() => setIsAddToPlaylistModalOpen(false)} 
+        problemId={selectedProblem?.id}
+        onSubmit={handleAddToPlaylist} 
+      />
     </div>
   );
 };
